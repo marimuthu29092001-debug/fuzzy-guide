@@ -81,6 +81,12 @@
       line-height: 1.5;
     }
 
+    body.sidebar-open,
+    html.sidebar-open {
+      overflow: hidden !important;
+      touch-action: none;
+    }
+
     /* ========================================================
        TOP GLOBAL LOADING BAR & SKELETON
        ======================================================== */
@@ -394,6 +400,7 @@
       opacity: 0;
       pointer-events: none;
       transition: opacity var(--transition-normal);
+      touch-action: none;
     }
     .mobile-backdrop.active {
       opacity: 1;
@@ -412,6 +419,7 @@
       left: 0;
       z-index: 100;
       transition: width var(--transition-normal), transform var(--transition-normal);
+      overscroll-behavior: contain;
       user-select: none;
     }
 
@@ -442,6 +450,7 @@
       gap: 0.35rem;
       overflow-y: auto;
       overflow-x: hidden;
+      overscroll-behavior: contain;
     }
 
     .nav-link-btn {
@@ -1064,6 +1073,7 @@
       align-items: center;
       justify-content: center;
       padding: 1.5rem;
+      touch-action: none;
     }
 
     .modal-window-card {
@@ -1073,6 +1083,7 @@
       max-width: 620px;
       max-height: 90vh;
       overflow-y: auto;
+      overscroll-behavior: contain;
       box-shadow: var(--shadow-dropdown);
     }
 
@@ -1607,6 +1618,24 @@
       const [billingModalOpen, setBillingModalOpen] = useState(false);
       const [newShopModalOpen, setNewShopModalOpen] = useState(false);
       const [newProductModalOpen, setNewProductModalOpen] = useState(false);
+
+      // Prevent background scroll when sidebar or any modal is open
+      React.useEffect(() => {
+        if (mobileSidebarOpen || billingModalOpen || newShopModalOpen || newProductModalOpen) {
+          document.body.classList.add('sidebar-open');
+          document.body.style.overflow = 'hidden';
+          document.documentElement.style.overflow = 'hidden';
+        } else {
+          document.body.classList.remove('sidebar-open');
+          document.body.style.overflow = '';
+          document.documentElement.style.overflow = '';
+        }
+        return () => {
+          document.body.classList.remove('sidebar-open');
+          document.body.style.overflow = '';
+          document.documentElement.style.overflow = '';
+        };
+      }, [mobileSidebarOpen, billingModalOpen, newShopModalOpen, newProductModalOpen]);
 
       // Billing Form State
       const [billingShop, setBillingShop] = useState(shops[0]?.name || "");

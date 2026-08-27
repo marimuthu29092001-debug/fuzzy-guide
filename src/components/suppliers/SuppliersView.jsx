@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useInventory } from '../../context/InventoryContext';
 import { Icon } from '../common/Icons';
 
@@ -15,6 +15,24 @@ export const SuppliersView = () => {
 
   const [activeTab, setActiveTab] = useState('pos'); // 'pos' or 'suppliers'
   const [isPoModalOpen, setIsPoModalOpen] = useState(false);
+
+  // Prevent background scroll when modal is open
+  useEffect(() => {
+    if (isPoModalOpen) {
+      document.body.classList.add('sidebar-open');
+      document.body.style.overflow = 'hidden';
+      document.documentElement.style.overflow = 'hidden';
+    } else {
+      document.body.classList.remove('sidebar-open');
+      document.body.style.overflow = '';
+      document.documentElement.style.overflow = '';
+    }
+    return () => {
+      document.body.classList.remove('sidebar-open');
+      document.body.style.overflow = '';
+      document.documentElement.style.overflow = '';
+    };
+  }, [isPoModalOpen]);
 
   // New PO Form
   const [selectedSupplierId, setSelectedSupplierId] = useState(suppliers[0]?.id || '');

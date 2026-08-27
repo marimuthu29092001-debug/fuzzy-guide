@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { InventoryProvider, useInventory } from './context/InventoryContext';
 import { Sidebar } from './components/layout/Sidebar';
 import { Navbar } from './components/layout/Navbar';
@@ -16,6 +16,25 @@ const AppContent = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [productModalOpen, setProductModalOpen] = useState(false);
   const [productToEdit, setProductToEdit] = useState(null);
+
+  // Prevent background scroll when sidebar or modal is open
+  useEffect(() => {
+    if (sidebarOpen || productModalOpen) {
+      document.body.classList.add('sidebar-open');
+      document.body.style.overflow = 'hidden';
+      document.documentElement.style.overflow = 'hidden';
+    } else {
+      document.body.classList.remove('sidebar-open');
+      document.body.style.overflow = '';
+      document.documentElement.style.overflow = '';
+    }
+
+    return () => {
+      document.body.classList.remove('sidebar-open');
+      document.body.style.overflow = '';
+      document.documentElement.style.overflow = '';
+    };
+  }, [sidebarOpen, productModalOpen]);
 
   const handleOpenAddModal = () => {
     setProductToEdit(null);
