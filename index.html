@@ -1,0 +1,2434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>STACKLY | Stock, Billing & Distribution Management Platform</title>
+  
+  <!-- Stackly Official Favicon -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><path d='M22 45 C18 30 26 16 42 8 C38 22 46 34 66 38 C48 44 28 52 22 45 Z' fill='%237FD1B9'/><path d='M42 46 C60 42 78 52 74 72 C68 86 50 94 34 90 C42 80 44 68 28 62 C34 56 38 50 42 46 Z' fill='%231E3A5F'/></svg>" />
+  
+  <!-- Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+
+  <!-- React 18 & Babel Standalone -->
+  <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <style>
+    :root {
+      --bg-body: #F8FAFC;
+      --bg-card: #FFFFFF;
+      --bg-sidebar: #FFFFFF;
+      --border-color: #E2E8F0;
+      --border-light: #F1F5F9;
+      --text-main: #0F172A;
+      --text-muted: #64748B;
+      --text-light: #94A3B8;
+      
+      --brand-navy: #1E3A5F;
+      --brand-teal: #7FD1B9;
+
+      --primary: #2563EB;
+      --primary-light: #EFF6FF;
+      --primary-hover: #1D4ED8;
+      --primary-focus: rgba(37, 99, 235, 0.2);
+
+      --blue-500: #3B82F6;
+      --blue-bg: #EFF6FF;
+      --green-500: #10B981;
+      --green-bg: #ECFDF5;
+      --purple-500: #8B5CF6;
+      --purple-bg: #F5F3FF;
+      --yellow-500: #EAB308;
+      --yellow-bg: #FEFCE8;
+      --red-500: #EF4444;
+      --red-bg: #FEF2F2;
+
+      --sidebar-width: 260px;
+      --sidebar-collapsed-width: 78px;
+      --header-height: 70px;
+
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --radius-xl: 24px;
+      --radius-full: 9999px;
+
+      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+      --shadow-card: 0 1px 3px 0 rgba(0, 0, 0, 0.04), 0 1px 2px -1px rgba(0, 0, 0, 0.04);
+      --shadow-dropdown: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.06);
+
+      --transition-normal: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background-color: var(--bg-body);
+      color: var(--text-main);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+      line-height: 1.5;
+    }
+
+    /* ========================================================
+       TOP GLOBAL LOADING BAR & SKELETON
+       ======================================================== */
+    .top-loading-bar-wrapper {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      z-index: 999;
+      background: transparent;
+      overflow: hidden;
+      pointer-events: none;
+    }
+
+    .top-loading-bar-indicator {
+      height: 100%;
+      width: 100%;
+      background: linear-gradient(90deg, #7FD1B9, #2563EB, #8B5CF6);
+      animation: topBarSlide 0.4s ease infinite;
+      box-shadow: 0 0 10px #2563EB;
+    }
+
+    @keyframes topBarSlide {
+      0% { transform: translateX(-100%); }
+      50% { transform: translateX(0); }
+      100% { transform: translateX(100%); }
+    }
+
+    /* Modern Skeleton Loader Container */
+    .page-loader-skeleton-box {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      width: 100%;
+      padding: 1rem 0;
+      animation: fadeIn 0.2s ease;
+    }
+
+    .skeleton-hero-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 3rem 2rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      box-shadow: var(--shadow-card);
+    }
+
+    .modern-spinner-ring {
+      width: 48px;
+      height: 48px;
+      border: 3.5px solid #E2E8F0;
+      border-top-color: #2563EB;
+      border-right-color: #7FD1B9;
+      border-radius: 50%;
+      animation: spinRing 0.6s linear infinite;
+    }
+
+    @keyframes spinRing {
+      to { transform: rotate(360deg); }
+    }
+
+    .skeleton-pulse-bar {
+      height: 14px;
+      border-radius: var(--radius-full);
+      background: linear-gradient(90deg, #F1F5F9 25%, #E2E8F0 50%, #F1F5F9 75%);
+      background-size: 200% 100%;
+      animation: shimmerBar 1.2s infinite;
+    }
+
+    @keyframes shimmerBar {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    /* ========================================================
+       404 NOT FOUND / UNDER CONSTRUCTION PAGE
+       ======================================================== */
+    .not-found-wrapper-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-xl);
+      padding: 4rem 2rem;
+      text-align: center;
+      box-shadow: var(--shadow-card);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .not-found-wrapper-card::before {
+      content: '';
+      position: absolute;
+      top: -120px;
+      width: 300px;
+      height: 300px;
+      background: radial-gradient(circle, rgba(127, 209, 185, 0.15), rgba(37, 99, 235, 0.05), transparent 70%);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+
+    .badge-404-hero {
+      font-size: 5.5rem;
+      font-weight: 900;
+      line-height: 1;
+      letter-spacing: -0.04em;
+      background: linear-gradient(135deg, #1E3A5F 0%, #2563EB 50%, #7FD1B9 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 0.5rem;
+      filter: drop-shadow(0 10px 20px rgba(37, 99, 235, 0.1));
+    }
+
+    .not-found-title-text {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 1.85rem;
+      font-weight: 700;
+      color: #0F172A;
+      margin-bottom: 0.75rem;
+    }
+
+    .not-found-subtext {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      max-width: 520px;
+      line-height: 1.6;
+      margin-bottom: 2rem;
+    }
+
+    .not-found-actions-group {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    /* ========================================================
+       LOGIN SCREEN STYLES
+       ======================================================== */
+    .login-viewport {
+      min-height: 100vh;
+      width: 100vw;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #EEF2FF 0%, #E0E7FF 50%, #F0F4FF 100%);
+      padding: 1.5rem;
+    }
+
+    .login-card-box {
+      width: 100%;
+      max-width: 440px;
+      background: #FFFFFF;
+      border-radius: var(--radius-xl);
+      padding: 2.75rem 2.25rem;
+      box-shadow: 0 20px 40px -10px rgba(30, 58, 95, 0.12), 0 1px 3px rgba(0, 0, 0, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.8);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      animation: loginPop 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .login-brand-display {
+      margin-bottom: 2rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .login-form-wrapper {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .login-field-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.45rem;
+      width: 100%;
+    }
+
+    .login-label {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: #334155;
+    }
+
+    .login-input-container {
+      position: relative;
+      display: flex;
+      align-items: center;
+      width: 100%;
+      background: #F1F5F9;
+      border: 1px solid #E2E8F0;
+      border-radius: var(--radius-md);
+      transition: all 0.15s ease;
+    }
+
+    .login-input-container:focus-within {
+      background: #FFFFFF;
+      border-color: #2563EB;
+      box-shadow: 0 0 0 3.5px var(--primary-focus);
+    }
+
+    .login-input-icon-left {
+      padding-left: 1rem;
+      color: #94A3B8;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .login-text-input {
+      width: 100%;
+      padding: 0.85rem 1rem 0.85rem 0.75rem;
+      background: transparent;
+      border: none;
+      outline: none;
+      font-family: var(--font-sans);
+      font-size: 0.95rem;
+      color: #0F172A;
+    }
+
+    .login-password-eye-btn {
+      background: none;
+      border: none;
+      padding-right: 1rem;
+      color: #94A3B8;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: color 0.15s ease;
+    }
+
+    .login-password-eye-btn:hover {
+      color: #475569;
+    }
+
+    .login-submit-btn {
+      width: 100%;
+      padding: 0.85rem;
+      margin-top: 0.5rem;
+      border-radius: var(--radius-md);
+      background: #2563EB;
+      color: #FFFFFF;
+      font-size: 1rem;
+      font-weight: 600;
+      font-family: var(--font-sans);
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);
+      transition: all 0.15s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    .login-submit-btn:hover {
+      background: #1D4ED8;
+      transform: translateY(-1px);
+      box-shadow: 0 6px 18px rgba(37, 99, 235, 0.45);
+    }
+
+    .login-submit-btn:active {
+      transform: translateY(0);
+    }
+
+    .login-demo-hint {
+      margin-top: 1.25rem;
+      padding: 0.65rem 0.85rem;
+      background: #EFF6FF;
+      border: 1px dashed #BFDBFE;
+      border-radius: var(--radius-sm);
+      font-size: 0.78rem;
+      color: #1E40AF;
+      text-align: center;
+      width: 100%;
+    }
+
+    /* ========================================================
+       DASHBOARD & APP STYLES
+       ======================================================== */
+    .app-layout {
+      display: flex;
+      min-height: 100vh;
+      width: 100%;
+      position: relative;
+    }
+
+    .mobile-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.5);
+      backdrop-filter: blur(4px);
+      z-index: 90;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity var(--transition-normal);
+    }
+    .mobile-backdrop.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .sidebar {
+      width: var(--sidebar-width);
+      background: var(--bg-sidebar);
+      border-right: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      z-index: 100;
+      transition: width var(--transition-normal), transform var(--transition-normal);
+      user-select: none;
+    }
+
+    .sidebar.collapsed {
+      width: var(--sidebar-collapsed-width);
+    }
+
+    .sidebar-logo-section {
+      height: var(--header-height);
+      padding: 0 1.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      border-bottom: 1px solid var(--border-light);
+      overflow: hidden;
+    }
+
+    .sidebar.collapsed .sidebar-logo-section {
+      justify-content: center;
+      padding: 0;
+    }
+
+    .nav-menu-scroll {
+      flex: 1;
+      padding: 1rem 0.75rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+      overflow-y: auto;
+      overflow-x: hidden;
+    }
+
+    .nav-link-btn {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      padding: 0.7rem 0.85rem;
+      border-radius: var(--radius-md);
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-family: var(--font-sans);
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+      text-align: left;
+      transition: all 0.15s ease;
+      white-space: nowrap;
+      position: relative;
+    }
+
+    .nav-link-btn:hover {
+      background: #F1F5F9;
+      color: var(--text-main);
+    }
+
+    .nav-link-btn.active {
+      background: var(--primary-light);
+      color: var(--primary);
+      font-weight: 600;
+    }
+
+    .nav-link-btn.active::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 15%;
+      height: 70%;
+      width: 3.5px;
+      border-radius: 0 4px 4px 0;
+      background: var(--primary);
+    }
+
+    .nav-item-left {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+    }
+
+    .nav-icon {
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .sidebar.collapsed .nav-label,
+    .sidebar.collapsed .nav-badge-pill {
+      display: none;
+    }
+
+    .sidebar.collapsed .nav-link-btn {
+      justify-content: center;
+      padding: 0.75rem;
+    }
+
+    .nav-badge-pill {
+      font-size: 0.72rem;
+      padding: 2px 7px;
+      border-radius: var(--radius-full);
+      background: #F1F5F9;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .billing-quick-btn {
+      margin: 0.75rem 0.25rem;
+      padding: 0.75rem 1rem;
+      border-radius: var(--radius-md);
+      background: #0F172A;
+      color: #FFFFFF;
+      border: 1px solid #0F172A;
+      font-size: 1.05rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.6rem;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      box-shadow: 0 4px 10px rgba(15, 23, 42, 0.15);
+      white-space: nowrap;
+    }
+
+    .billing-quick-btn:hover {
+      background: #1E293B;
+      transform: translateY(-1px);
+    }
+
+    .sidebar.collapsed .billing-quick-btn span {
+      display: none;
+    }
+
+    .sidebar-footer-widget {
+      padding: 1rem 0.85rem;
+      border-top: 1px solid var(--border-light);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      overflow: hidden;
+    }
+
+    .sidebar.collapsed .sidebar-footer-widget {
+      justify-content: center;
+      padding: 0.85rem 0.25rem;
+    }
+
+    .main-wrapper {
+      flex: 1;
+      margin-left: var(--sidebar-width);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      transition: margin-left var(--transition-normal);
+    }
+
+    .app-layout.sidebar-collapsed .main-wrapper {
+      margin-left: var(--sidebar-collapsed-width);
+    }
+
+    .topbar {
+      height: var(--header-height);
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 2rem;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .topbar-left {
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+    }
+
+    .icon-toggle-btn {
+      width: 38px;
+      height: 38px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-color);
+      background: #FFFFFF;
+      color: var(--text-muted);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .icon-toggle-btn:hover {
+      background: #F1F5F9;
+      color: var(--text-main);
+    }
+
+    #mobile-hamburger-btn {
+      display: none;
+    }
+
+    .breadcrumb-title {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: #0F172A;
+      letter-spacing: -0.01em;
+    }
+
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .topbar-search-box {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      background: #F8FAFC;
+      border: 1px solid var(--border-color);
+      padding: 0.45rem 0.85rem;
+      border-radius: var(--radius-full);
+      width: 260px;
+      transition: all 0.15s ease;
+    }
+
+    .topbar-search-box:focus-within {
+      background: #FFFFFF;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--primary-focus);
+      width: 300px;
+    }
+
+    .topbar-search-box input {
+      border: none;
+      background: transparent;
+      outline: none;
+      font-size: 0.85rem;
+      font-family: var(--font-sans);
+      width: 100%;
+      color: var(--text-main);
+    }
+
+    .notif-wrapper {
+      position: relative;
+    }
+
+    .notif-bell-btn {
+      position: relative;
+      width: 38px;
+      height: 38px;
+      border-radius: var(--radius-full);
+      border: 1px solid var(--border-color);
+      background: #FFFFFF;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .notif-bell-btn:hover {
+      background: #F8FAFC;
+      color: var(--text-main);
+    }
+
+    .notif-dot-badge {
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      width: 8px;
+      height: 8px;
+      background: var(--red-500);
+      border-radius: var(--radius-full);
+      border: 2px solid #FFFFFF;
+    }
+
+    .dropdown-box {
+      position: absolute;
+      top: 48px;
+      right: 0;
+      width: 320px;
+      background: #FFFFFF;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-dropdown);
+      z-index: 60;
+      overflow: hidden;
+      animation: dropdownPop 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .dropdown-header {
+      padding: 0.85rem 1rem;
+      border-bottom: 1px solid var(--border-light);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-weight: 700;
+      font-size: 0.85rem;
+    }
+
+    .dropdown-item {
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid var(--border-light);
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+      cursor: pointer;
+      transition: background 0.15s ease;
+    }
+
+    .dropdown-item:hover {
+      background: #F8FAFC;
+    }
+
+    .profile-pill-box {
+      position: relative;
+    }
+
+    .profile-pill-btn {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      padding: 0.35rem 0.75rem 0.35rem 0.4rem;
+      border-radius: var(--radius-full);
+      border: 1px solid var(--border-color);
+      background: #FFFFFF;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .profile-pill-btn:hover {
+      background: #F8FAFC;
+      border-color: #CBD5E1;
+    }
+
+    .profile-avatar-img {
+      width: 32px;
+      height: 32px;
+      border-radius: var(--radius-full);
+      background: linear-gradient(135deg, #1E3A5F, #2563EB);
+      color: #FFFFFF;
+      font-weight: 700;
+      font-size: 0.8rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .online-indicator-dot {
+      position: absolute;
+      bottom: 0px;
+      right: 0px;
+      width: 9px;
+      height: 9px;
+      border-radius: var(--radius-full);
+      background: var(--green-500);
+      border: 2px solid #FFFFFF;
+    }
+
+    .profile-meta-text {
+      text-align: left;
+      line-height: 1.2;
+    }
+
+    .profile-meta-name {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #0F172A;
+    }
+
+    .profile-meta-role {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    /* Main Area & Metrics */
+    .main-content-area {
+      padding: 2rem;
+      max-width: 1600px;
+      width: 100%;
+      margin: 0 auto;
+      transition: opacity 0.2s ease;
+    }
+
+    .metrics-grid-4 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.25rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .metric-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 1.25rem 1.4rem;
+      box-shadow: var(--shadow-card);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 120px;
+    }
+
+    .metric-top-row {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+    }
+
+    .metric-title-label {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .metric-icon-bubble {
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius-full);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .bubble-blue { background: var(--blue-bg); color: var(--blue-500); }
+    .bubble-green { background: var(--green-bg); color: var(--green-500); }
+    .bubble-purple { background: var(--purple-bg); color: var(--purple-500); }
+    .bubble-yellow { background: var(--yellow-bg); color: var(--yellow-500); }
+    .bubble-red { background: var(--red-bg); color: var(--red-500); }
+
+    .metric-value-num {
+      font-size: 1.7rem;
+      font-weight: 700;
+      color: #0F172A;
+      margin-top: 0.5rem;
+    }
+
+    .collected-hero-card {
+      grid-column: span 2;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 1.25rem 1.4rem;
+      box-shadow: var(--shadow-card);
+    }
+
+    .breakdown-grid-list {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.5rem 1.5rem;
+      margin-top: 1rem;
+      font-size: 0.85rem;
+    }
+
+    .breakdown-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.35rem 0;
+      border-bottom: 1px dashed var(--border-light);
+    }
+
+    .val-green { color: #16A34A; font-weight: 700; }
+    .val-blue { color: #2563EB; font-weight: 700; }
+    .val-orange { color: #EA580C; font-weight: 700; }
+    .val-red { color: #DC2626; font-weight: 700; }
+
+    /* Tables & Tabs */
+    .table-section-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-card);
+      overflow: hidden;
+      margin-top: 1.5rem;
+    }
+
+    .table-section-head {
+      padding: 1.25rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      border-bottom: 1px solid var(--border-color);
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .table-main-title {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #0F172A;
+      margin-bottom: 0.5rem;
+    }
+
+    .badges-pill-container {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      font-size: 0.8rem;
+    }
+
+    .pill-badge {
+      padding: 0.25rem 0.65rem;
+      border-radius: var(--radius-sm);
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    .pill-green { background: #DCFCE7; color: #15803D; }
+    .pill-blue { background: #DBEAFE; color: #1D4ED8; }
+    .pill-orange { background: #FFEDD5; color: #C2410C; }
+    .pill-red { background: #FEE2E2; color: #B91C1C; }
+    .pill-gray { background: #F1F5F9; color: #475569; }
+
+    .tab-switch-group {
+      display: flex;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      background: #FFFFFF;
+    }
+
+    .tab-switch-btn {
+      padding: 0.65rem 1rem;
+      border: none;
+      background: transparent;
+      border-right: 1px solid var(--border-color);
+      color: var(--text-muted);
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-width: 105px;
+      line-height: 1.2;
+      transition: all 0.15s ease;
+    }
+
+    .tab-switch-btn:last-child {
+      border-right: none;
+    }
+
+    .tab-switch-btn:hover {
+      background: #F8FAFC;
+      color: var(--text-main);
+    }
+
+    .tab-switch-btn.active {
+      color: var(--primary);
+      background: #FFFFFF;
+      box-shadow: inset 0 -2.5px 0 var(--primary), inset 0 2.5px 0 var(--primary);
+      border-color: var(--primary);
+    }
+
+    .table-responsive-box {
+      overflow-x: auto;
+      width: 100%;
+    }
+
+    .custom-data-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.84rem;
+    }
+
+    .custom-data-table th {
+      padding: 0.9rem 1.25rem;
+      text-transform: uppercase;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      background: #F8FAFC;
+      border-bottom: 1px solid var(--border-color);
+      white-space: nowrap;
+    }
+
+    .custom-data-table td {
+      padding: 1.05rem 1.25rem;
+      border-bottom: 1px solid var(--border-color);
+      color: var(--text-main);
+      vertical-align: middle;
+    }
+
+    .custom-data-table tr:hover td {
+      background: #F8FAFC;
+    }
+
+    .btn-action {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+      padding: 0.55rem 1rem;
+      border-radius: var(--radius-sm);
+      font-size: 0.85rem;
+      font-weight: 600;
+      font-family: var(--font-sans);
+      cursor: pointer;
+      border: 1px solid var(--border-color);
+      background: #FFFFFF;
+      color: var(--text-main);
+      transition: all 0.15s ease;
+    }
+
+    .btn-action:hover {
+      background: #F1F5F9;
+      transform: translateY(-1px);
+    }
+
+    .btn-action-primary {
+      background: #2563EB;
+      color: #FFFFFF;
+      border-color: #2563EB;
+      box-shadow: 0 4px 10px rgba(37, 99, 235, 0.25);
+    }
+
+    .btn-action-primary:hover {
+      background: #1D4ED8;
+      box-shadow: 0 6px 14px rgba(37, 99, 235, 0.35);
+    }
+
+    /* Modals */
+    .modal-overlay-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.65);
+      backdrop-filter: blur(4px);
+      z-index: 120;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+    }
+
+    .modal-window-card {
+      background: #FFFFFF;
+      border-radius: var(--radius-lg);
+      width: 100%;
+      max-width: 620px;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: var(--shadow-dropdown);
+    }
+
+    .modal-head-row {
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .modal-body-content {
+      padding: 1.5rem;
+    }
+
+    .modal-foot-actions {
+      padding: 1rem 1.5rem;
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.75rem;
+    }
+
+    .form-grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .form-group-col {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+
+    .form-group-col.span-2 {
+      grid-column: span 2;
+    }
+
+    .form-group-col label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    .form-ctrl {
+      padding: 0.55rem 0.85rem;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      font-size: 0.875rem;
+      font-family: var(--font-sans);
+      outline: none;
+    }
+
+    .form-ctrl:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--primary-focus);
+    }
+
+    @keyframes loginPop {
+      from { opacity: 0; transform: scale(0.96) translateY(10px); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    @keyframes dropdownPop {
+      from { opacity: 0; transform: translateY(-8px) scale(0.96); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .hamburger-toggle-btn {
+      width: 38px;
+      height: 38px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-color);
+      background: #FFFFFF;
+      color: var(--text-main);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+    }
+
+    .hamburger-toggle-btn:hover {
+      background: #F1F5F9;
+      color: var(--primary);
+      border-color: #CBD5E1;
+    }
+
+    @media (max-width: 1180px) {
+      .metrics-grid-4 {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .collected-hero-card {
+        grid-column: span 2;
+      }
+    }
+
+    @media (max-width: 900px) {
+      .sidebar {
+        transform: translateX(-100%);
+      }
+      .sidebar.mobile-open {
+        transform: translateX(0);
+      }
+      .main-wrapper {
+        margin-left: 0 !important;
+      }
+      .topbar {
+        padding: 0 1rem;
+      }
+      .main-content-area {
+        padding: 1.25rem 1rem;
+      }
+      .topbar-search-box {
+        display: none;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .metrics-grid-4 {
+        grid-template-columns: 1fr;
+      }
+      .collected-hero-card {
+        grid-column: span 1;
+      }
+      .breakdown-grid-list {
+        grid-template-columns: 1fr;
+      }
+      .tab-switch-group {
+        width: 100%;
+      }
+      .tab-switch-btn {
+        flex: 1;
+        min-width: unset;
+        font-size: 0.72rem;
+      }
+      .form-grid-2 {
+        grid-template-columns: 1fr;
+      }
+      .form-group-col.span-2 {
+        grid-column: span 1;
+      }
+      .profile-meta-text {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useEffect } = React;
+
+    // ========================================================
+    // OFFICIAL STACKLY BRAND LOGO COMPONENT
+    // ========================================================
+    const StacklyLogo = ({ size = 36, showText = true, textColor = "#1E3A5F" }) => (
+      <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.65rem', userSelect: 'none' }}>
+        <svg width={size} height={size} viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ flexShrink: 0 }}>
+          <path
+            d="M20 45 C16 30 26 15 42 7 C37 22 46 34 66 38 C48 44 26 52 20 45 Z"
+            fill="#7FD1B9"
+          />
+          <path
+            d="M44 46 C62 42 80 52 76 72 C70 86 52 94 36 90 C44 80 46 68 30 62 C36 56 40 50 44 46 Z"
+            fill="#1E3A5F"
+          />
+        </svg>
+        {showText && (
+          <span style={{ 
+            fontFamily: "'Inter', sans-serif", 
+            fontSize: `${size * 0.54}px`, 
+            fontWeight: 800, 
+            letterSpacing: '0.12em', 
+            color: textColor,
+            lineHeight: 1
+          }}>
+            STACKLY
+          </span>
+        )}
+      </div>
+    );
+
+    // ========================================================
+    // GENERAL SVG ICONS COMPONENT
+    // ========================================================
+    const AppIcon = ({ name, size = 18, color = "currentColor" }) => {
+      switch (name) {
+        case 'user':
+          return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>;
+        case 'lock':
+          return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>;
+        case 'eye':
+          return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>;
+        case 'eyeOff':
+          return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2"><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><line x1="2" y1="2" x2="22" y2="22"/></svg>;
+        case 'dashboard':
+          return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>;
+        case 'truck':
+          return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M15 18H9"/><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.62l-3.48-4.35A1 1 0 0 0 17.52 8H14v10Z"/><circle cx="7" cy="18" r="2"/><circle cx="17" cy="18" r="2"/></svg>;
+        case 'fileText':
+          return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></svg>;
+        case 'shop':
+          return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2"><path d="m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7"/><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><path d="M15 22v-4a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v4"/><path d="M2 7h20"/></svg>;
+        case 'box':
+          return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg>;
+        case 'stock':
+          return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>;
+        case 'dollar':
+          return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2"><line x1="12" y1="2" x2="12" y2="22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>;
+        case 'chart':
+          return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>;
+        case 'menu':
+          return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2"><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="18" x2="20" y2="18"/></svg>;
+        case 'chevronLeft':
+          return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2"><path d="m15 18-6-6 6-6"/></svg>;
+        case 'chevronRight':
+          return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2"><path d="m9 18 6-6-6-6"/></svg>;
+        case 'bell':
+          return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>;
+        case 'search':
+          return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>;
+        case 'logout':
+          return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>;
+        case 'ticket':
+          return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2"><path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/></svg>;
+        case 'arrowUpRight':
+          return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg>;
+        case 'plus':
+          return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2"><path d="M5 12h14"/><path d="M12 5v14"/></svg>;
+        case 'alertTriangle':
+          return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>;
+        case 'home':
+          return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>;
+        default:
+          return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2"><circle cx="12" cy="12" r="10"/></svg>;
+      }
+    };
+
+    // ========================================================
+    // INITIAL MOCK DATA
+    // ========================================================
+    const INITIAL_SHOPS = [
+      { id: "shp-1", name: "Murugan Hot Chips & Sweets", owner: "Murugan V", area: "T. Nagar, Chennai", phone: "+91 98401 11223", balance: 4500 },
+      { id: "shp-2", name: "Sri Balaji Bakery & Mart", owner: "Balaji R", area: "Anna Nagar, Chennai", phone: "+91 94440 22334", balance: 1200 },
+      { id: "shp-3", name: "Annapoorna Super Stores", owner: "Senthil Kumar", area: "Velachery, Chennai", phone: "+91 99620 33445", balance: 0 },
+      { id: "shp-4", name: "Kaveri Traders & Provisions", owner: "Karthik K", area: "Tambaram, Chennai", phone: "+91 98200 44556", balance: 7800 },
+      { id: "shp-5", name: "Gokul Tea & Snacks Stall", owner: "Gokulraj P", area: "Guindy, Chennai", phone: "+91 97910 55667", balance: 2300 }
+    ];
+
+    const INITIAL_PRODUCTS = [
+      { id: "prd-1", name: "Kara Boondi (200g Pkt)", category: "Snacks", price: 45, cost: 30, stock: 350 },
+      { id: "prd-2", name: "Ribbon Pakoda (250g Pkt)", category: "Snacks", price: 55, cost: 38, stock: 240 },
+      { id: "prd-3", name: "Spicy Banana Chips (150g)", category: "Chips", price: 40, cost: 26, stock: 480 },
+      { id: "prd-4", name: "Special Mixture (500g Box)", category: "Mixture", price: 120, cost: 85, stock: 190 },
+      { id: "prd-5", name: "Butter Murukku (200g)", category: "Murukku", price: 50, cost: 32, stock: 310 },
+      { id: "prd-6", name: "Makroon Sweet (100g)", category: "Sweets", price: 65, cost: 42, stock: 150 }
+    ];
+
+    const INITIAL_PAYMENTS = [
+      {
+        id: "PAY-1001",
+        shopName: "Murugan Hot Chips & Sweets",
+        billId: "BILL-5021",
+        paymentType: "Cash",
+        paidAmount: 2500,
+        pendingBalance: 2000,
+        collectedBy: "Driver - Manikandan",
+        timestamp: "Today, 10:30 AM"
+      },
+      {
+        id: "PAY-1002",
+        shopName: "Sri Balaji Bakery & Mart",
+        billId: "BILL-5022",
+        paymentType: "GPay",
+        paidAmount: 1800,
+        pendingBalance: 0,
+        collectedBy: "Super Admin",
+        timestamp: "Today, 11:15 AM"
+      },
+      {
+        id: "PAY-1003",
+        shopName: "Kaveri Traders & Provisions",
+        billId: "BILL-5023",
+        paymentType: "Old Pending (Cash)",
+        paidAmount: 3200,
+        pendingBalance: 4600,
+        collectedBy: "Sales Rep - Dinesh",
+        timestamp: "Today, 12:40 PM"
+      }
+    ];
+
+    const INITIAL_RETURNS = [
+      { id: "RET-201", shopName: "Gokul Tea & Snacks Stall", productName: "Spicy Banana Chips (150g)", packets: 12, reason: "Expiry Replaced", date: "Today" },
+      { id: "RET-202", shopName: "Murugan Hot Chips & Sweets", productName: "Butter Murukku (200g)", packets: 6, reason: "Damaged Packet", date: "Today" }
+    ];
+
+    const INITIAL_PENDING_SHOPS = [
+      { shopName: "Kaveri Traders & Provisions", billId: "BILL-5023", totalBill: 7800, paidToday: 3200, pendingNow: 4600 },
+      { shopName: "Murugan Hot Chips & Sweets", billId: "BILL-5021", totalBill: 4500, paidToday: 2500, pendingNow: 2000 },
+      { shopName: "Gokul Tea & Snacks Stall", billId: "BILL-5019", totalBill: 2300, paidToday: 0, pendingNow: 2300 }
+    ];
+
+    const INITIAL_GST_BILLS = [
+      { billId: "GST-901", shopName: "Annapoorna Super Stores", gstNo: "33AABCA1234F1Z5", taxableValue: 12500, gstAmount: 625, grandTotal: 13125, date: "Today" },
+      { billId: "GST-902", shopName: "Sri Balaji Bakery & Mart", gstNo: "33AABCS5678F2Z1", taxableValue: 8400, gstAmount: 420, grandTotal: 8820, date: "Today" }
+    ];
+
+    // ========================================================
+    // MAIN REACT APPLICATION
+    // ========================================================
+    function StacklyApp() {
+      // Auth State
+      const [isAuthenticated, setIsAuthenticated] = useState(() => {
+        return localStorage.getItem('stackly_auth') === 'true';
+      });
+
+      // Login Form Fields
+      const [loginUser, setLoginUser] = useState('superadmin');
+      const [loginPassword, setLoginPassword] = useState('admin123');
+      const [showPassword, setShowPassword] = useState(false);
+      const [loginError, setLoginError] = useState('');
+
+      // Navigation & Page Loading State
+      const [currentNav, setCurrentNav] = useState('dashboard');
+      const [isPageLoading, setIsPageLoading] = useState(false);
+      const [activeTableTab, setActiveTableTab] = useState('payments');
+
+      // Sidebar States
+      const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+      const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+
+      // Dropdowns
+      const [notifOpen, setNotifOpen] = useState(false);
+      const [profileOpen, setProfileOpen] = useState(false);
+
+      // Data States
+      const [shops, setShops] = useState(INITIAL_SHOPS);
+      const [products, setProducts] = useState(INITIAL_PRODUCTS);
+      const [payments, setPayments] = useState(INITIAL_PAYMENTS);
+      const [returnsList, setReturnsList] = useState(INITIAL_RETURNS);
+      const [pendingShops, setPendingShops] = useState(INITIAL_PENDING_SHOPS);
+      const [gstBills, setGstBills] = useState(INITIAL_GST_BILLS);
+      const [searchTerm, setSearchTerm] = useState('');
+
+      // Expenses
+      const [expenses, setExpenses] = useState({ cngPetrol: 450, makroonDaily: 250 });
+
+      // Notifications
+      const [notificationsList, setNotificationsList] = useState([
+        { id: 1, text: "Payment of ₹1,800 received via GPay from Sri Balaji Bakery.", time: "10m ago", read: false },
+        { id: 2, text: "Low stock alert: Makroon Sweet (100g) is below 160 pkts.", time: "45m ago", read: false },
+        { id: 3, text: "GST Invoice GST-901 generated successfully.", time: "2h ago", read: true }
+      ]);
+
+      // Modals
+      const [billingModalOpen, setBillingModalOpen] = useState(false);
+      const [newShopModalOpen, setNewShopModalOpen] = useState(false);
+      const [newProductModalOpen, setNewProductModalOpen] = useState(false);
+
+      // Billing Form State
+      const [billingShop, setBillingShop] = useState(shops[0]?.name || "");
+      const [billingItem, setBillingItem] = useState(products[0]?.id || "");
+      const [billingQty, setBillingQty] = useState(10);
+      const [billingPaymentType, setBillingPaymentType] = useState('Cash');
+      const [billingPaidAmount, setBillingPaidAmount] = useState(450);
+
+      // Currency Formatter
+      const fmt = (num) => '₹' + Number(num || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+      // Financials
+      const totalCashCollected = payments.filter(p => p.paymentType === 'Cash').reduce((a, b) => a + b.paidAmount, 0);
+      const totalGPayCollected = payments.filter(p => p.paymentType === 'GPay').reduce((a, b) => a + b.paidAmount, 0);
+      const totalOldPendingCollected = payments.filter(p => p.paymentType.includes('Old')).reduce((a, b) => a + b.paidAmount, 0);
+      const grossCollected = payments.reduce((a, b) => a + b.paidAmount, 0);
+      const netTodayCollection = grossCollected - (expenses.cngPetrol + expenses.makroonDaily);
+      const todayRevenue = 24500;
+
+      // Modern Navigation Click Handler with Loading Animation
+      const handleNavigate = (navId) => {
+        if (navId === currentNav) return;
+        setIsPageLoading(true);
+        setMobileSidebarOpen(false);
+        setTimeout(() => {
+          setCurrentNav(navId);
+          setIsPageLoading(false);
+        }, 320);
+      };
+
+      // Handle Login Submit
+      const handleLogin = (e) => {
+        e.preventDefault();
+        if (!loginUser.trim() || !loginPassword.trim()) {
+          setLoginError('Please enter username and password.');
+          return;
+        }
+
+        setIsPageLoading(true);
+        setTimeout(() => {
+          setIsAuthenticated(true);
+          localStorage.setItem('stackly_auth', 'true');
+          setLoginError('');
+          setIsPageLoading(false);
+        }, 400);
+      };
+
+      // Handle Logout
+      const handleLogout = () => {
+        setIsPageLoading(true);
+        setTimeout(() => {
+          setIsAuthenticated(false);
+          localStorage.removeItem('stackly_auth');
+          setProfileOpen(false);
+          setIsPageLoading(false);
+        }, 300);
+      };
+
+      // Handle Create Bill
+      const handleCreateBill = (e) => {
+        e.preventDefault();
+        const prod = products.find(p => p.id === billingItem) || products[0];
+        const totalBillVal = billingQty * prod.price;
+        const newBillId = `BILL-${Math.floor(5000 + Math.random() * 1000)}`;
+        const pendingBal = Math.max(0, totalBillVal - Number(billingPaidAmount));
+
+        if (Number(billingPaidAmount) > 0) {
+          const newPay = {
+            id: `PAY-${Math.floor(1000 + Math.random() * 9000)}`,
+            shopName: billingShop,
+            billId: newBillId,
+            paymentType: billingPaymentType,
+            paidAmount: Number(billingPaidAmount),
+            pendingBalance: pendingBal,
+            collectedBy: "Super Admin",
+            timestamp: "Just now"
+          };
+          setPayments([newPay, ...payments]);
+        }
+
+        if (pendingBal > 0) {
+          setPendingShops([{
+            shopName: billingShop,
+            billId: newBillId,
+            totalBill: totalBillVal,
+            paidToday: Number(billingPaidAmount),
+            pendingNow: pendingBal
+          }, ...pendingShops]);
+        }
+
+        setProducts(products.map(p => p.id === prod.id ? { ...p, stock: Math.max(0, p.stock - billingQty) } : p));
+        alert(`Bill ${newBillId} created for ${billingShop} (${fmt(totalBillVal)})!`);
+        setBillingModalOpen(false);
+      };
+
+      // Navigation Items List
+      const navItems = [
+        { id: 'dashboard', label: 'Dashboard', icon: 'dashboard' },
+        { id: 'suppliers', label: 'Suppliers', icon: 'truck', badge: '2' },
+        { id: 'purchases', label: 'Purchase Bills', icon: 'fileText' },
+        { id: 'shops', label: 'Shops', icon: 'shop', badge: `${shops.length}` },
+        { id: 'products', label: 'Products', icon: 'box', badge: `${products.length}` },
+        { id: 'stock', label: 'Stock', icon: 'stock' },
+        { id: 'billing', label: 'Billing', icon: 'dollar', isSpecial: true },
+        { id: 'reports', label: 'Reports', icon: 'chart' }
+      ];
+
+      // ========================================================
+      // 1. RENDER LOGIN SCREEN IF NOT AUTHENTICATED
+      // ========================================================
+      if (!isAuthenticated) {
+        return (
+          <div className="login-viewport">
+            {isPageLoading && (
+              <div className="top-loading-bar-wrapper">
+                <div className="top-loading-bar-indicator"></div>
+              </div>
+            )}
+            <div className="login-card-box">
+              {/* Official STACKLY Logo Display */}
+              <div className="login-brand-display">
+                <StacklyLogo size={52} showText={true} />
+              </div>
+
+              {/* Login Form */}
+              <form className="login-form-wrapper" onSubmit={handleLogin}>
+                {/* Username Field */}
+                <div className="login-field-group">
+                  <label className="login-label">Username</label>
+                  <div className="login-input-container">
+                    <span className="login-input-icon-left">
+                      <AppIcon name="user" size={18} />
+                    </span>
+                    <input
+                      type="text"
+                      required
+                      className="login-text-input"
+                      value={loginUser}
+                      onChange={(e) => setLoginUser(e.target.value)}
+                      placeholder="Username"
+                    />
+                  </div>
+                </div>
+
+                {/* Password Field */}
+                <div className="login-field-group">
+                  <label className="login-label">Password</label>
+                  <div className="login-input-container">
+                    <span className="login-input-icon-left">
+                      <AppIcon name="lock" size={18} />
+                    </span>
+                    <input
+                      type={showPassword ? "text" : "password"}
+                      required
+                      className="login-text-input"
+                      value={loginPassword}
+                      onChange={(e) => setLoginPassword(e.target.value)}
+                      placeholder="Password"
+                    />
+                    <button
+                      type="button"
+                      className="login-password-eye-btn"
+                      onClick={() => setShowPassword(!showPassword)}
+                      title={showPassword ? "Hide password" : "Show password"}
+                    >
+                      <AppIcon name={showPassword ? "eyeOff" : "eye"} size={18} />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Error message */}
+                {loginError && (
+                  <div style={{ color: '#DC2626', fontSize: '0.8rem', textAlign: 'center' }}>
+                    {loginError}
+                  </div>
+                )}
+
+                {/* Sign In Button */}
+                <button type="submit" className="login-submit-btn">
+                  <span>Sign In</span>
+                </button>
+              </form>
+
+              {/* Demo credentials info */}
+              <div className="login-demo-hint">
+                Demo Username: <strong>superadmin</strong> • Password: <strong>admin123</strong>
+              </div>
+            </div>
+          </div>
+        );
+      }
+
+      // ========================================================
+      // 2. RENDER DASHBOARD & APP ONCE LOGGED IN
+      // ========================================================
+      return (
+        <div className={`app-layout ${sidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
+          {/* Top Progress Loading Bar */}
+          {isPageLoading && (
+            <div className="top-loading-bar-wrapper">
+              <div className="top-loading-bar-indicator"></div>
+            </div>
+          )}
+
+          {/* Mobile Overlay */}
+          <div 
+            className={`mobile-backdrop ${mobileSidebarOpen ? 'active' : ''}`}
+            onClick={() => setMobileSidebarOpen(false)}
+          />
+
+          {/* Sidebar */}
+          <aside className={`sidebar ${sidebarCollapsed ? 'collapsed' : ''} ${mobileSidebarOpen ? 'mobile-open' : ''}`}>
+            {/* Sidebar Logo with Official Stackly Brand */}
+            <div className="sidebar-logo-section">
+              <a href="#" onClick={(e) => { e.preventDefault(); handleNavigate('dashboard'); }} style={{ textDecoration: 'none' }}>
+                <StacklyLogo size={36} showText={!sidebarCollapsed} />
+              </a>
+            </div>
+
+            <ul className="nav-menu-scroll">
+              {navItems.map(item => {
+                if (item.isSpecial) {
+                  return (
+                    <li key={item.id} style={{ listStyle: 'none' }}>
+                      <button
+                        className="billing-quick-btn"
+                        onClick={() => {
+                          setBillingModalOpen(true);
+                          setMobileSidebarOpen(false);
+                        }}
+                        title="Quick Billing"
+                      >
+                        <AppIcon name="dollar" size={20} color="#FFFFFF" />
+                        <span>Billing</span>
+                      </button>
+                    </li>
+                  );
+                }
+
+                const isActive = currentNav === item.id;
+                return (
+                  <li key={item.id} style={{ listStyle: 'none' }}>
+                    <button
+                      className={`nav-link-btn ${isActive ? 'active' : ''}`}
+                      onClick={() => handleNavigate(item.id)}
+                      title={sidebarCollapsed ? item.label : undefined}
+                    >
+                      <div className="nav-item-left">
+                        <div className="nav-icon">
+                          <AppIcon name={item.icon} size={18} color={isActive ? '#2563EB' : '#64748B'} />
+                        </div>
+                        <span className="nav-label">{item.label}</span>
+                      </div>
+                      {item.badge && (
+                        <span className="nav-badge-pill">{item.badge}</span>
+                      )}
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
+
+            <div className="sidebar-footer-widget">
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                <div className="profile-avatar-img" style={{ width: '30px', height: '30px', fontSize: '0.75rem' }}>
+                  SA
+                </div>
+                {!sidebarCollapsed && (
+                  <div style={{ fontSize: '0.75rem', lineHeight: 1.2 }}>
+                    <div style={{ fontWeight: 700, color: 'var(--text-main)' }}>Stackly Pro</div>
+                    <div style={{ color: 'var(--text-muted)' }}>v2.4.0 Active</div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </aside>
+
+          {/* Main Wrapper */}
+          <div className="main-wrapper">
+            {/* Topbar */}
+            <header className="topbar">
+              <div className="topbar-left">
+                <h1 className="breadcrumb-title">
+                  {currentNav === 'dashboard' ? 'Dashboard' : currentNav.charAt(0).toUpperCase() + currentNav.slice(1)}
+                </h1>
+              </div>
+
+              <div className="topbar-right">
+                <div className="topbar-search-box">
+                  <AppIcon name="search" size={15} color="var(--text-muted)" />
+                  <input
+                    type="text"
+                    placeholder="Search bills, shops, SKU..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
+                </div>
+
+                {/* Notifications */}
+                <div className="notif-wrapper">
+                  <button
+                    className="notif-bell-btn"
+                    onClick={() => { setNotifOpen(!notifOpen); setProfileOpen(false); }}
+                    title="Notifications"
+                  >
+                    <AppIcon name="bell" size={18} />
+                    {notificationsList.some(n => !n.read) && <span className="notif-dot-badge"></span>}
+                  </button>
+
+                  {notifOpen && (
+                    <div className="dropdown-box">
+                      <div className="dropdown-header">
+                        <span>Notifications</span>
+                        <span style={{ fontSize: '0.75rem', color: 'var(--primary)', cursor: 'pointer' }} onClick={() => setNotificationsList(notificationsList.map(n => ({ ...n, read: true })))}>
+                          Mark all read
+                        </span>
+                      </div>
+                      <div style={{ maxHeight: '250px', overflowY: 'auto' }}>
+                        {notificationsList.map(n => (
+                          <div key={n.id} className="dropdown-item">
+                            <span style={{ fontSize: '0.8rem', color: '#0F172A', fontWeight: n.read ? 400 : 600 }}>
+                              {n.text}
+                            </span>
+                            <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>{n.time}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Profile Pill & Dropdown */}
+                <div className="profile-pill-box">
+                  <button
+                    className="profile-pill-btn"
+                    onClick={() => { setProfileOpen(!profileOpen); setNotifOpen(false); }}
+                  >
+                    <div className="profile-avatar-img">
+                      SA
+                      <span className="online-indicator-dot"></span>
+                    </div>
+                    <div className="profile-meta-text">
+                      <div className="profile-meta-name">Super Admin</div>
+                      <div className="profile-meta-role">Administrator</div>
+                    </div>
+                  </button>
+
+                  {profileOpen && (
+                    <div className="dropdown-box" style={{ width: '220px' }}>
+                      <div style={{ padding: '0.85rem 1rem', borderBottom: '1px solid var(--border-light)' }}>
+                        <div style={{ fontWeight: 700, fontSize: '0.85rem' }}>Super Admin</div>
+                        <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>admin@stackly.com</div>
+                      </div>
+                      <div className="dropdown-item" onClick={() => { alert('Profile Settings'); setProfileOpen(false); }}>
+                        <span style={{ fontSize: '0.82rem' }}>👤 My Profile</span>
+                      </div>
+                      <div className="dropdown-item" onClick={() => { alert('Settings'); setProfileOpen(false); }}>
+                        <span style={{ fontSize: '0.82rem' }}>⚙️ Settings</span>
+                      </div>
+                      <div className="dropdown-item" style={{ color: '#DC2626' }} onClick={handleLogout}>
+                        <span style={{ fontSize: '0.82rem', fontWeight: 600 }}>🚪 Logout</span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </header>
+
+            {/* Main Content Body */}
+            <main className="main-content-area">
+              {/* If Loading Page, show modern skeleton pulse */}
+              {isPageLoading ? (
+                <div className="page-loader-skeleton-box">
+                  <div className="skeleton-hero-card">
+                    <div className="modern-spinner-ring"></div>
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem', width: '220px' }}>
+                      <div className="skeleton-pulse-bar" style={{ width: '100%' }}></div>
+                      <div className="skeleton-pulse-bar" style={{ width: '60%' }}></div>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  {/* View: Dashboard */}
+                  {currentNav === 'dashboard' && (
+                    <>
+                      <div className="metrics-grid-4">
+                        <div className="metric-card">
+                          <div className="metric-top-row">
+                            <span className="metric-title-label">Total Shops</span>
+                            <div className="metric-icon-bubble bubble-blue">
+                              <AppIcon name="shop" size={18} />
+                            </div>
+                          </div>
+                          <div className="metric-value-num">{shops.length}</div>
+                        </div>
+
+                        <div className="metric-card">
+                          <div className="metric-top-row">
+                            <span className="metric-title-label">Products</span>
+                            <div className="metric-icon-bubble bubble-green">
+                              <AppIcon name="box" size={18} />
+                            </div>
+                          </div>
+                          <div className="metric-value-num">{products.length}</div>
+                        </div>
+
+                        <div className="metric-card">
+                          <div className="metric-top-row">
+                            <span className="metric-title-label">Today's Bills</span>
+                            <div className="metric-icon-bubble bubble-purple">
+                              <AppIcon name="ticket" size={18} />
+                            </div>
+                          </div>
+                          <div className="metric-value-num">{payments.length}</div>
+                        </div>
+
+                        <div className="metric-card">
+                          <div className="metric-top-row">
+                            <span className="metric-title-label">Today's Revenue</span>
+                            <div className="metric-icon-bubble bubble-yellow">
+                              <AppIcon name="dollar" size={18} />
+                            </div>
+                          </div>
+                          <div className="metric-value-num">{fmt(todayRevenue)}</div>
+                        </div>
+                      </div>
+
+                      <div className="metrics-grid-4">
+                        <div className="metric-card">
+                          <div className="metric-top-row">
+                            <span className="metric-title-label">Pending Returns</span>
+                            <div className="metric-icon-bubble bubble-red">
+                              <AppIcon name="arrowUpRight" size={18} />
+                            </div>
+                          </div>
+                          <div className="metric-value-num">{returnsList.length}</div>
+                        </div>
+
+                        <div className="metric-card">
+                          <div className="metric-top-row">
+                            <span className="metric-title-label">GST Bills</span>
+                            <div className="metric-icon-bubble bubble-blue">
+                              <AppIcon name="fileText" size={18} />
+                            </div>
+                          </div>
+                          <div className="metric-value-num">{gstBills.length}</div>
+                        </div>
+
+                        <div className="collected-hero-card">
+                          <div className="metric-top-row">
+                            <span className="metric-title-label">Today's Collected Amount</span>
+                            <div className="metric-icon-bubble bubble-purple">
+                              <AppIcon name="dollar" size={18} />
+                            </div>
+                          </div>
+                          <div className="metric-value-num" style={{ color: '#0F172A' }}>
+                            {fmt(netTodayCollection)}
+                          </div>
+
+                          <div className="breakdown-grid-list">
+                            <div className="breakdown-row">
+                              <span>Bill Save (Cash):</span>
+                              <span className="val-green">{fmt(totalCashCollected)}</span>
+                            </div>
+                            <div className="breakdown-row">
+                              <span>GPay:</span>
+                              <span className="val-blue">{fmt(totalGPayCollected)}</span>
+                            </div>
+                            <div className="breakdown-row">
+                              <span>Old Pending Collected:</span>
+                              <span className="val-orange">{fmt(totalOldPendingCollected)}</span>
+                            </div>
+                            <div className="breakdown-row">
+                              <span>CNG/Petrol:</span>
+                              <span className="val-red">-{fmt(expenses.cngPetrol)}</span>
+                            </div>
+                            <div className="breakdown-row">
+                              <span>Makroon:</span>
+                              <span className="val-red">-{fmt(expenses.makroonDaily)}</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Table with Tabs */}
+                      <div className="table-section-card">
+                        <div className="table-section-head">
+                          <div>
+                            <h2 className="table-main-title">
+                              {activeTableTab === 'payments' && "Today's Received Payments"}
+                              {activeTableTab === 'returns' && "Return Packets Audit"}
+                              {activeTableTab === 'pending' && "Today Pending Given Shop"}
+                              {activeTableTab === 'gst' && "GST Billing Register"}
+                            </h2>
+
+                            <div className="badges-pill-container">
+                              <span className="pill-badge pill-green">
+                                Total Collected Today: {fmt(netTodayCollection)}
+                              </span>
+                              <span className="pill-badge pill-gray">
+                                Bill Save (Cash): {fmt(totalCashCollected)}
+                              </span>
+                              <span className="pill-badge pill-blue">
+                                GPay: {fmt(totalGPayCollected)}
+                              </span>
+                              <span className="pill-badge pill-orange">
+                                Old Pending Collected: {fmt(totalOldPendingCollected)}
+                              </span>
+                              <span className="pill-badge pill-red">
+                                CNG/Petrol: -{fmt(expenses.cngPetrol)}
+                              </span>
+                              <span className="pill-badge pill-red">
+                                Makroon: -{fmt(expenses.makroonDaily)}
+                              </span>
+                            </div>
+                          </div>
+
+                          <div className="tab-switch-group">
+                            <button
+                              className={`tab-switch-btn ${activeTableTab === 'payments' ? 'active' : ''}`}
+                              onClick={() => setActiveTableTab('payments')}
+                            >
+                              <span>Payments Received</span>
+                              <strong style={{ fontSize: '0.85rem' }}>({payments.length})</strong>
+                            </button>
+
+                            <button
+                              className={`tab-switch-btn ${activeTableTab === 'returns' ? 'active' : ''}`}
+                              onClick={() => setActiveTableTab('returns')}
+                            >
+                              <span>Return Packets</span>
+                              <strong style={{ fontSize: '0.85rem' }}>({returnsList.length})</strong>
+                            </button>
+
+                            <button
+                              className={`tab-switch-btn ${activeTableTab === 'pending' ? 'active' : ''}`}
+                              onClick={() => setActiveTableTab('pending')}
+                            >
+                              <span>Today Pending Given Shop</span>
+                              <strong style={{ fontSize: '0.85rem' }}>({pendingShops.length})</strong>
+                            </button>
+
+                            <button
+                              className={`tab-switch-btn ${activeTableTab === 'gst' ? 'active' : ''}`}
+                              onClick={() => setActiveTableTab('gst')}
+                            >
+                              <span>GST Bills</span>
+                              <strong style={{ fontSize: '0.85rem' }}>({gstBills.length})</strong>
+                            </button>
+                          </div>
+                        </div>
+
+                        {activeTableTab === 'payments' && (
+                          <div className="table-responsive-box">
+                            <table className="custom-data-table">
+                              <thead>
+                                <tr>
+                                  <th>SHOP NAME</th>
+                                  <th>BILL ID</th>
+                                  <th>PAYMENT TYPE</th>
+                                  <th>PAID AMOUNT TODAY</th>
+                                  <th>BILL PENDING BALANCE</th>
+                                  <th>COLLECTED BY</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {payments.map(pay => (
+                                  <tr key={pay.id}>
+                                    <td style={{ fontWeight: 600 }}>{pay.shopName}</td>
+                                    <td style={{ fontFamily: 'monospace', fontWeight: 600, color: 'var(--primary)' }}>
+                                      {pay.billId}
+                                    </td>
+                                    <td>
+                                      <span className={`pill-badge ${pay.paymentType === 'Cash' ? 'pill-green' : pay.paymentType === 'GPay' ? 'pill-blue' : 'pill-orange'}`}>
+                                        {pay.paymentType}
+                                      </span>
+                                    </td>
+                                    <td style={{ fontWeight: 700, color: '#16A34A' }}>
+                                      {fmt(pay.paidAmount)}
+                                    </td>
+                                    <td style={{ fontWeight: 600, color: pay.pendingBalance > 0 ? '#DC2626' : '#64748B' }}>
+                                      {fmt(pay.pendingBalance)}
+                                    </td>
+                                    <td style={{ color: 'var(--text-muted)' }}>{pay.collectedBy}</td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          </div>
+                        )}
+
+                        {activeTableTab === 'returns' && (
+                          <div className="table-responsive-box">
+                            <table className="custom-data-table">
+                              <thead>
+                                <tr>
+                                  <th>RETURN ID</th>
+                                  <th>SHOP NAME</th>
+                                  <th>PRODUCT NAME</th>
+                                  <th>RETURN PACKETS</th>
+                                  <th>REASON</th>
+                                  <th>DATE</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {returnsList.map(ret => (
+                                  <tr key={ret.id}>
+                                    <td style={{ fontFamily: 'monospace', fontWeight: 600 }}>{ret.id}</td>
+                                    <td style={{ fontWeight: 600 }}>{ret.shopName}</td>
+                                    <td>{ret.productName}</td>
+                                    <td style={{ fontWeight: 700, color: '#DC2626' }}>{ret.packets} Pkts</td>
+                                    <td>{ret.reason}</td>
+                                    <td style={{ color: 'var(--text-muted)' }}>{ret.date}</td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          </div>
+                        )}
+
+                        {activeTableTab === 'pending' && (
+                          <div className="table-responsive-box">
+                            <table className="custom-data-table">
+                              <thead>
+                                <tr>
+                                  <th>SHOP NAME</th>
+                                  <th>BILL ID</th>
+                                  <th>TOTAL BILL AMOUNT</th>
+                                  <th>PAID TODAY</th>
+                                  <th>PENDING BALANCE GIVEN</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {pendingShops.map((ps, idx) => (
+                                  <tr key={idx}>
+                                    <td style={{ fontWeight: 600 }}>{ps.shopName}</td>
+                                    <td style={{ fontFamily: 'monospace', color: 'var(--primary)' }}>{ps.billId}</td>
+                                    <td style={{ fontWeight: 600 }}>{fmt(ps.totalBill)}</td>
+                                    <td style={{ color: '#16A34A', fontWeight: 600 }}>{fmt(ps.paidToday)}</td>
+                                    <td style={{ color: '#DC2626', fontWeight: 700 }}>{fmt(ps.pendingNow)}</td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          </div>
+                        )}
+
+                        {activeTableTab === 'gst' && (
+                          <div className="table-responsive-box">
+                            <table className="custom-data-table">
+                              <thead>
+                                <tr>
+                                  <th>GST BILL ID</th>
+                                  <th>SHOP NAME</th>
+                                  <th>GSTIN NUMBER</th>
+                                  <th>TAXABLE VALUE</th>
+                                  <th>GST (5%)</th>
+                                  <th>GRAND TOTAL</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {gstBills.map(gb => (
+                                  <tr key={gb.billId}>
+                                    <td style={{ fontFamily: 'monospace', fontWeight: 700, color: 'var(--primary)' }}>{gb.billId}</td>
+                                    <td style={{ fontWeight: 600 }}>{gb.shopName}</td>
+                                    <td style={{ fontFamily: 'monospace', fontSize: '0.78rem' }}>{gb.gstNo}</td>
+                                    <td>{fmt(gb.taxableValue)}</td>
+                                    <td style={{ color: '#2563EB' }}>{fmt(gb.gstAmount)}</td>
+                                    <td style={{ fontWeight: 700 }}>{fmt(gb.grandTotal)}</td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          </div>
+                        )}
+                      </div>
+                    </>
+                  )}
+
+                  {/* View: Shops */}
+                  {currentNav === 'shops' && (
+                    <div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+                        <h2 style={{ fontSize: '1.25rem', fontWeight: 700 }}>Registered Shops & Retail Outlets</h2>
+                        <button className="btn-action btn-action-primary" onClick={() => setNewShopModalOpen(true)}>
+                          <AppIcon name="plus" size={16} /> <span>Add New Shop</span>
+                        </button>
+                      </div>
+                      <div className="table-section-card">
+                        <div className="table-responsive-box">
+                          <table className="custom-data-table">
+                            <thead>
+                              <tr>
+                                <th>SHOP NAME</th>
+                                <th>OWNER NAME</th>
+                                <th>AREA</th>
+                                <th>PHONE</th>
+                                <th>OUTSTANDING BALANCE</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {shops.map(s => (
+                                <tr key={s.id}>
+                                  <td style={{ fontWeight: 600 }}>{s.name}</td>
+                                  <td>{s.owner}</td>
+                                  <td>{s.area}</td>
+                                  <td style={{ fontFamily: 'monospace' }}>{s.phone}</td>
+                                  <td style={{ fontWeight: 700, color: s.balance > 0 ? '#DC2626' : '#16A34A' }}>
+                                    {fmt(s.balance)}
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* View: Products & Stock */}
+                  {(currentNav === 'products' || currentNav === 'stock') && (
+                    <div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+                        <h2 style={{ fontSize: '1.25rem', fontWeight: 700 }}>Products & Inventory Status</h2>
+                        <button className="btn-action btn-action-primary" onClick={() => setNewProductModalOpen(true)}>
+                          <AppIcon name="plus" size={16} /> <span>Add New Product</span>
+                        </button>
+                      </div>
+                      <div className="table-section-card">
+                        <div className="table-responsive-box">
+                          <table className="custom-data-table">
+                            <thead>
+                              <tr>
+                                <th>PRODUCT NAME</th>
+                                <th>CATEGORY</th>
+                                <th>SELLING PRICE</th>
+                                <th>COST</th>
+                                <th>STOCK</th>
+                                <th>ACTION</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {products.map(p => (
+                                <tr key={p.id}>
+                                  <td style={{ fontWeight: 600 }}>{p.name}</td>
+                                  <td><span className="pill-badge pill-gray">{p.category}</span></td>
+                                  <td style={{ fontWeight: 700 }}>{fmt(p.price)}</td>
+                                  <td style={{ color: 'var(--text-muted)' }}>{fmt(p.cost)}</td>
+                                  <td>
+                                    <strong style={{ color: p.stock < 180 ? '#DC2626' : '#16A34A' }}>
+                                      {p.stock} Pkts
+                                    </strong>
+                                  </td>
+                                  <td>
+                                    <button
+                                      className="btn-action"
+                                      style={{ padding: '0.25rem 0.5rem', fontSize: '0.75rem' }}
+                                      onClick={() => {
+                                        setProducts(products.map(item => item.id === p.id ? { ...item, stock: item.stock + 50 } : item));
+                                        alert(`Restocked +50 pkts for ${p.name}`);
+                                      }}
+                                    >
+                                      + Restock 50
+                                    </button>
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* ULTRA-MODERN 404 / UNDER CONSTRUCTION PAGE FOR OTHER MENUS */}
+                  {(currentNav === 'suppliers' || currentNav === 'purchases' || currentNav === 'reports') && (
+                    <div className="not-found-wrapper-card">
+                      <div className="badge-404-hero">404</div>
+                      <h2 className="not-found-title-text">
+                        {currentNav.charAt(0).toUpperCase() + currentNav.slice(1)} Module Under Construction
+                      </h2>
+                      <p className="not-found-subtext">
+                        The <strong>{currentNav.charAt(0).toUpperCase() + currentNav.slice(1)}</strong> management section is currently being integrated into your Stackly ERP cloud environment. Core features will go live in the next update!
+                      </p>
+                      
+                      <div className="not-found-actions-group">
+                        <button
+                          className="btn-action btn-action-primary"
+                          onClick={() => handleNavigate('dashboard')}
+                        >
+                          <AppIcon name="home" size={16} color="#FFFFFF" />
+                          <span>Return to Dashboard</span>
+                        </button>
+                        
+                        <button
+                          className="btn-action"
+                          onClick={() => setBillingModalOpen(true)}
+                        >
+                          <AppIcon name="dollar" size={16} color="#2563EB" />
+                          <span>Open POS Billing ($)</span>
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </>
+              )}
+            </main>
+          </div>
+
+          {/* Quick Billing Modal */}
+          {billingModalOpen && (
+            <div className="modal-overlay-backdrop" onClick={() => setBillingModalOpen(false)}>
+              <div className="modal-window-card" onClick={(e) => e.stopPropagation()}>
+                <div className="modal-head-row">
+                  <h2 style={{ fontSize: '1.15rem', fontWeight: 700 }}>Generate Fast Bill / Invoice</h2>
+                  <button className="btn-action" style={{ padding: '0.2rem 0.5rem' }} onClick={() => setBillingModalOpen(false)}>✕</button>
+                </div>
+                <form onSubmit={handleCreateBill}>
+                  <div className="modal-body-content">
+                    <div className="form-grid-2">
+                      <div className="form-group-col span-2">
+                        <label>Select Shop / Customer *</label>
+                        <select className="form-ctrl" value={billingShop} onChange={(e) => setBillingShop(e.target.value)}>
+                          {shops.map(s => <option key={s.id} value={s.name}>{s.name} ({s.area})</option>)}
+                        </select>
+                      </div>
+                      <div className="form-group-col">
+                        <label>Product Item</label>
+                        <select className="form-ctrl" value={billingItem} onChange={(e) => setBillingItem(e.target.value)}>
+                          {products.map(p => <option key={p.id} value={p.id}>{p.name} ({fmt(p.price)})</option>)}
+                        </select>
+                      </div>
+                      <div className="form-group-col">
+                        <label>Quantity (Pkts)</label>
+                        <input type="number" min="1" className="form-ctrl" value={billingQty} onChange={(e) => setBillingQty(Number(e.target.value))} />
+                      </div>
+                      <div className="form-group-col">
+                        <label>Payment Mode</label>
+                        <select className="form-ctrl" value={billingPaymentType} onChange={(e) => setBillingPaymentType(e.target.value)}>
+                          <option value="Cash">Cash</option>
+                          <option value="GPay">GPay / UPI</option>
+                          <option value="Old Pending (Cash)">Old Pending (Cash)</option>
+                          <option value="Credit / Balance">Credit (Pending)</option>
+                        </select>
+                      </div>
+                      <div className="form-group-col">
+                        <label>Paid Amount Today (₹)</label>
+                        <input type="number" min="0" className="form-ctrl" value={billingPaidAmount} onChange={(e) => setBillingPaidAmount(e.target.value)} />
+                      </div>
+                    </div>
+                  </div>
+                  <div className="modal-foot-actions">
+                    <button type="button" className="btn-action" onClick={() => setBillingModalOpen(false)}>Cancel</button>
+                    <button type="submit" className="btn-action btn-action-primary">Create & Save Bill</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          )}
+
+          {/* Add Shop Modal */}
+          {newShopModalOpen && (
+            <div className="modal-overlay-backdrop" onClick={() => setNewShopModalOpen(false)}>
+              <div className="modal-window-card" onClick={(e) => e.stopPropagation()}>
+                <div className="modal-head-row">
+                  <h2 style={{ fontSize: '1.15rem', fontWeight: 700 }}>Add New Retail Shop</h2>
+                  <button className="btn-action" onClick={() => setNewShopModalOpen(false)}>✕</button>
+                </div>
+                <form onSubmit={(e) => {
+                  e.preventDefault();
+                  const form = e.target;
+                  const shopData = {
+                    id: 'shp-' + Date.now(),
+                    name: form.name.value,
+                    owner: form.owner.value,
+                    area: form.area.value,
+                    phone: form.phone.value,
+                    balance: Number(form.balance.value || 0)
+                  };
+                  setShops([...shops, shopData]);
+                  alert(`Shop ${shopData.name} registered!`);
+                  setNewShopModalOpen(false);
+                }}>
+                  <div className="modal-body-content">
+                    <div className="form-grid-2">
+                      <div className="form-group-col span-2">
+                        <label>Shop Name *</label>
+                        <input type="text" name="name" required className="form-ctrl" placeholder="e.g. Royal Bakery & Sweets" />
+                      </div>
+                      <div className="form-group-col">
+                        <label>Owner Name</label>
+                        <input type="text" name="owner" className="form-ctrl" placeholder="e.g. K. Sundaram" />
+                      </div>
+                      <div className="form-group-col">
+                        <label>Area / Route</label>
+                        <input type="text" name="area" className="form-ctrl" placeholder="e.g. Vadapalani, Chennai" />
+                      </div>
+                      <div className="form-group-col">
+                        <label>Phone Number</label>
+                        <input type="text" name="phone" className="form-ctrl" placeholder="+91 98400 00000" />
+                      </div>
+                      <div className="form-group-col">
+                        <label>Opening Balance (₹)</label>
+                        <input type="number" name="balance" defaultValue="0" className="form-ctrl" />
+                      </div>
+                    </div>
+                  </div>
+                  <div className="modal-foot-actions">
+                    <button type="button" className="btn-action" onClick={() => setNewShopModalOpen(false)}>Cancel</button>
+                    <button type="submit" className="btn-action btn-action-primary">Save Shop</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          )}
+
+          {/* Add Product Modal */}
+          {newProductModalOpen && (
+            <div className="modal-overlay-backdrop" onClick={() => setNewProductModalOpen(false)}>
+              <div className="modal-window-card" onClick={(e) => e.stopPropagation()}>
+                <div className="modal-head-row">
+                  <h2 style={{ fontSize: '1.15rem', fontWeight: 700 }}>Add New Product Item</h2>
+                  <button className="btn-action" onClick={() => setNewProductModalOpen(false)}>✕</button>
+                </div>
+                <form onSubmit={(e) => {
+                  e.preventDefault();
+                  const form = e.target;
+                  const prodData = {
+                    id: 'prd-' + Date.now(),
+                    name: form.name.value,
+                    category: form.category.value,
+                    price: Number(form.price.value),
+                    cost: Number(form.cost.value),
+                    stock: Number(form.stock.value)
+                  };
+                  setProducts([...products, prodData]);
+                  alert(`Product ${prodData.name} registered!`);
+                  setNewProductModalOpen(false);
+                }}>
+                  <div className="modal-body-content">
+                    <div className="form-grid-2">
+                      <div className="form-group-col span-2">
+                        <label>Product Name *</label>
+                        <input type="text" name="name" required className="form-ctrl" placeholder="e.g. Masala Cashews (100g)" />
+                      </div>
+                      <div className="form-group-col">
+                        <label>Category</label>
+                        <select name="category" className="form-ctrl">
+                          <option value="Snacks">Snacks</option>
+                          <option value="Chips">Chips</option>
+                          <option value="Mixture">Mixture</option>
+                          <option value="Murukku">Murukku</option>
+                          <option value="Sweets">Sweets</option>
+                        </select>
+                      </div>
+                      <div className="form-group-col">
+                        <label>Selling Price (₹)</label>
+                        <input type="number" name="price" defaultValue="50" className="form-ctrl" />
+                      </div>
+                      <div className="form-group-col">
+                        <label>Purchase Cost (₹)</label>
+                        <input type="number" name="cost" defaultValue="35" className="form-ctrl" />
+                      </div>
+                      <div className="form-group-col">
+                        <label>Initial Stock (Pkts)</label>
+                        <input type="number" name="stock" defaultValue="100" className="form-ctrl" />
+                      </div>
+                    </div>
+                  </div>
+                  <div className="modal-foot-actions">
+                    <button type="button" className="btn-action" onClick={() => setNewProductModalOpen(false)}>Cancel</button>
+                    <button type="submit" className="btn-action btn-action-primary">Save Product</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<StacklyApp />);
+  </script>
+</body>
+</html>
