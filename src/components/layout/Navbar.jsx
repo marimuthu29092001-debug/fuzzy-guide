@@ -21,12 +21,13 @@ export const Navbar = ({ onToggleSidebar, onOpenAddModal }) => {
   return (
     <header className="top-navbar">
       {/* Mobile Menu & Search */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
         <button
-          className="control-btn btn-icon-round"
-          style={{ display: 'none' }}
+          className="control-btn btn-icon-round mobile-menu-btn"
           id="mobile-menu-trigger"
           onClick={onToggleSidebar}
+          aria-label="Toggle navigation menu"
+          title="Open menu"
         >
           <Icon name="menu" size={20} />
         </button>
@@ -35,7 +36,7 @@ export const Navbar = ({ onToggleSidebar, onOpenAddModal }) => {
           <Icon name="search" size={16} color="var(--text-muted)" />
           <input
             type="text"
-            placeholder="Search by SKU, Product name, Barcode..."
+            placeholder="Search SKU, Product, Barcode..."
             value={globalSearch}
             onChange={(e) => setGlobalSearch(e.target.value)}
           />
@@ -54,10 +55,10 @@ export const Navbar = ({ onToggleSidebar, onOpenAddModal }) => {
       <div className="nav-actions">
         {/* Currency Switcher */}
         <select
-          className="select-input"
+          className="select-input nav-currency-select"
           value={currency}
           onChange={(e) => setCurrency(e.target.value)}
-          style={{ padding: '0.45rem 0.75rem', fontWeight: 600, fontSize: '0.85rem' }}
+          style={{ padding: '0.45rem 0.65rem', fontWeight: 600, fontSize: '0.85rem' }}
           title="Switch Display Currency"
         >
           <option value="INR">₹ INR</option>
@@ -124,9 +125,9 @@ export const Navbar = ({ onToggleSidebar, onOpenAddModal }) => {
         </div>
 
         {/* Quick Add Product Button */}
-        <button className="control-btn btn-primary" onClick={onOpenAddModal}>
+        <button className="control-btn btn-primary nav-add-btn" onClick={onOpenAddModal}>
           <Icon name="plus" size={16} />
-          <span>New Product</span>
+          <span className="btn-text-hide-mobile">New Product</span>
         </button>
       </div>
     </header>

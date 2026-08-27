@@ -59,6 +59,12 @@ const AppContent = () => {
 
   return (
     <div className="app-container">
+      {/* Mobile Sidebar Backdrop */}
+      <div
+        className={`mobile-backdrop ${sidebarOpen ? 'active' : ''}`}
+        onClick={() => setSidebarOpen(false)}
+      />
+
       {/* Sidebar Navigation */}
       <Sidebar
         isOpen={sidebarOpen}
