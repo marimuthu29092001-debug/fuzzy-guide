@@ -832,6 +832,12 @@
       flex-direction: column;
       justify-content: space-between;
       min-height: 120px;
+      cursor: pointer;
+      transition: transform var(--transition-normal), box-shadow var(--transition-normal);
+    }
+    .metric-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08);
     }
 
     .metric-top-row {
@@ -1655,16 +1661,41 @@
       const netTodayCollection = grossCollected - (expenses.cngPetrol + expenses.makroonDaily);
       const todayRevenue = 24500;
 
-      // Modern Navigation Click Handler with Loading Animation
+      // Modern Navigation Click Handler with Loading Animation & Cancellation of intermediate clicks
+      const navTimerRef = React.useRef(null);
+      const pendingNavRef = React.useRef(null);
+
       const handleNavigate = (navId) => {
-        if (navId === currentNav) return;
+        // Record the LAST clicked navigation target
+        pendingNavRef.current = navId;
+
+        // Cancel any pending navigation so previous/intermediate clicks will NOT open
+        if (navTimerRef.current) {
+          clearTimeout(navTimerRef.current);
+          navTimerRef.current = null;
+        }
+
+        if (navId === currentNav && !isPageLoading) return;
+
         setIsPageLoading(true);
         setMobileSidebarOpen(false);
-        setTimeout(() => {
-          setCurrentNav(navId);
+
+        // Open ONLY the last clicked item
+        navTimerRef.current = setTimeout(() => {
+          const targetNav = pendingNavRef.current;
+          setCurrentNav(targetNav);
           setIsPageLoading(false);
-        }, 320);
+          navTimerRef.current = null;
+        }, 220);
       };
+
+      React.useEffect(() => {
+        return () => {
+          if (navTimerRef.current) {
+            clearTimeout(navTimerRef.current);
+          }
+        };
+      }, []);
 
       // Handle Login Submit
       const handleLogin = (e) => {
@@ -2045,7 +2076,7 @@
                   {currentNav === 'dashboard' && (
                     <>
                       <div className="metrics-grid-4">
-                        <div className="metric-card">
+                        <div className="metric-card" onClick={() => handleNavigate('shops')} title="View Shops Catalog">
                           <div className="metric-top-row">
                             <span className="metric-title-label">Total Shops</span>
                             <div className="metric-icon-bubble bubble-blue">
@@ -2055,7 +2086,7 @@
                           <div className="metric-value-num">{shops.length}</div>
                         </div>
 
-                        <div className="metric-card">
+                        <div className="metric-card" onClick={() => handleNavigate('products')} title="View Products Catalog">
                           <div className="metric-top-row">
                             <span className="metric-title-label">Products</span>
                             <div className="metric-icon-bubble bubble-green">
@@ -2065,7 +2096,7 @@
                           <div className="metric-value-num">{products.length}</div>
                         </div>
 
-                        <div className="metric-card">
+                        <div className="metric-card" onClick={() => setActiveTableTab('payments')} title="View Payments Received">
                           <div className="metric-top-row">
                             <span className="metric-title-label">Today's Bills</span>
                             <div className="metric-icon-bubble bubble-purple">
@@ -2075,7 +2106,7 @@
                           <div className="metric-value-num">{payments.length}</div>
                         </div>
 
-                        <div className="metric-card">
+                        <div className="metric-card" onClick={() => setActiveTableTab('payments')} title="View Revenue Details">
                           <div className="metric-top-row">
                             <span className="metric-title-label">Today's Revenue</span>
                             <div className="metric-icon-bubble bubble-yellow">
@@ -2087,7 +2118,7 @@
                       </div>
 
                       <div className="metrics-grid-4">
-                        <div className="metric-card">
+                        <div className="metric-card" onClick={() => setActiveTableTab('returns')} title="View Return Packets">
                           <div className="metric-top-row">
                             <span className="metric-title-label">Pending Returns</span>
                             <div className="metric-icon-bubble bubble-red">
@@ -2097,7 +2128,7 @@
                           <div className="metric-value-num">{returnsList.length}</div>
                         </div>
 
-                        <div className="metric-card">
+                        <div className="metric-card" onClick={() => setActiveTableTab('gst')} title="View GST Register">
                           <div className="metric-top-row">
                             <span className="metric-title-label">GST Bills</span>
                             <div className="metric-icon-bubble bubble-blue">
