@@ -10,9 +10,11 @@ import { WarehouseView } from './components/warehouses/WarehouseView';
 import { BarcodeView } from './components/scanner/BarcodeView';
 import { ReportsView } from './components/reports/ReportsView';
 import { ProductModal } from './components/inventory/ProductModal';
+import { LoginView } from './components/auth/LoginView';
 
 const AppContent = () => {
   const { currentView } = useInventory();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [productModalOpen, setProductModalOpen] = useState(false);
   const [productToEdit, setProductToEdit] = useState(null);
@@ -45,6 +47,15 @@ const AppContent = () => {
     setProductToEdit(prod);
     setProductModalOpen(true);
   };
+
+  const handleLogout = () => {
+    setIsAuthenticated(false);
+  };
+
+  // 1. Show Login Screen First
+  if (!isAuthenticated) {
+    return <LoginView onLogin={() => setIsAuthenticated(true)} />;
+  }
 
   const renderActiveView = () => {
     switch (currentView) {
@@ -88,6 +99,7 @@ const AppContent = () => {
       <Sidebar
         isOpen={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
+        onLogout={handleLogout}
       />
 
       {/* Main Wrapper */}
@@ -96,6 +108,7 @@ const AppContent = () => {
         <Navbar
           onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}
           onOpenAddModal={handleOpenAddModal}
+          onLogout={handleLogout}
         />
 
         {/* Dynamic View */}

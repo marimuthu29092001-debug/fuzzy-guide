@@ -1499,6 +1499,8 @@
           return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>;
         case 'home':
           return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>;
+        case 'arrowRight':
+          return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>;
         default:
           return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2"><circle cx="12" cy="12" r="10"/></svg>;
       }
@@ -1577,10 +1579,8 @@
     // MAIN REACT APPLICATION
     // ========================================================
     function StacklyApp() {
-      // Auth State
-      const [isAuthenticated, setIsAuthenticated] = useState(() => {
-        return localStorage.getItem('stackly_auth') === 'true';
-      });
+      // Auth State - Always start on Login Screen first
+      const [isAuthenticated, setIsAuthenticated] = useState(false);
 
       // Login Form Fields
       const [loginUser, setLoginUser] = useState('superadmin');
@@ -1699,7 +1699,7 @@
 
       // Handle Login Submit
       const handleLogin = (e) => {
-        e.preventDefault();
+        if (e) e.preventDefault();
         if (!loginUser.trim() || !loginPassword.trim()) {
           setLoginError('Please enter username and password.');
           return;
@@ -1708,10 +1708,9 @@
         setIsPageLoading(true);
         setTimeout(() => {
           setIsAuthenticated(true);
-          localStorage.setItem('stackly_auth', 'true');
           setLoginError('');
           setIsPageLoading(false);
-        }, 400);
+        }, 350);
       };
 
       // Handle Logout
@@ -1719,10 +1718,9 @@
         setIsPageLoading(true);
         setTimeout(() => {
           setIsAuthenticated(false);
-          localStorage.removeItem('stackly_auth');
           setProfileOpen(false);
           setIsPageLoading(false);
-        }, 300);
+        }, 200);
       };
 
       // Handle Create Bill
@@ -1789,6 +1787,14 @@
               {/* Official STACKLY Logo Display */}
               <div className="login-brand-display">
                 <StacklyLogo size={52} showText={true} />
+                <div style={{ textAlign: 'center', marginTop: '0.6rem' }}>
+                  <h2 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#0F172A', marginBottom: '0.25rem' }}>
+                    Welcome Back
+                  </h2>
+                  <p style={{ fontSize: '0.84rem', color: 'var(--text-muted)', margin: 0 }}>
+                    Please sign in to access your dashboard
+                  </p>
+                </div>
               </div>
 
               {/* Login Form */}
@@ -1806,7 +1812,7 @@
                       className="login-text-input"
                       value={loginUser}
                       onChange={(e) => setLoginUser(e.target.value)}
-                      placeholder="Username"
+                      placeholder="Username (e.g. superadmin)"
                     />
                   </div>
                 </div>
@@ -1839,20 +1845,42 @@
 
                 {/* Error message */}
                 {loginError && (
-                  <div style={{ color: '#DC2626', fontSize: '0.8rem', textAlign: 'center' }}>
+                  <div style={{ color: '#DC2626', background: '#FEE2E2', padding: '0.6rem', borderRadius: '8px', fontSize: '0.82rem', textAlign: 'center' }}>
                     {loginError}
                   </div>
                 )}
 
                 {/* Sign In Button */}
-                <button type="submit" className="login-submit-btn">
-                  <span>Sign In</span>
+                <button type="submit" className="login-submit-btn" disabled={isPageLoading}>
+                  <span>{isPageLoading ? 'Signing In...' : 'Sign In to Dashboard'}</span>
+                  {!isPageLoading && <AppIcon name="arrowRight" size={18} color="#FFFFFF" />}
                 </button>
               </form>
 
-              {/* Demo credentials info */}
+              {/* Demo credentials info & quick auto-fill */}
               <div className="login-demo-hint">
-                Demo Username: <strong>superadmin</strong> • Password: <strong>admin123</strong>
+                <div style={{ marginBottom: '0.35rem' }}>
+                  Demo Username: <strong>superadmin</strong> • Password: <strong>admin123</strong>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setLoginUser('superadmin');
+                    setLoginPassword('admin123');
+                    setLoginError('');
+                  }}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    color: '#2563EB',
+                    fontWeight: 600,
+                    fontSize: '0.75rem',
+                    cursor: 'pointer',
+                    textDecoration: 'underline'
+                  }}
+                >
+                  Auto-fill Demo Credentials
+                </button>
               </div>
             </div>
           </div>
@@ -1930,15 +1958,40 @@
             </ul>
 
             <div className="sidebar-footer-widget">
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-                <div className="profile-avatar-img" style={{ width: '30px', height: '30px', fontSize: '0.75rem' }}>
-                  SA
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                  <div className="profile-avatar-img" style={{ width: '30px', height: '30px', fontSize: '0.75rem' }}>
+                    SA
+                  </div>
+                  {!sidebarCollapsed && (
+                    <div style={{ fontSize: '0.75rem', lineHeight: 1.2 }}>
+                      <div style={{ fontWeight: 700, color: 'var(--text-main)' }}>Stackly Pro</div>
+                      <div style={{ color: 'var(--text-muted)' }}>v2.4.0 Active</div>
+                    </div>
+                  )}
                 </div>
                 {!sidebarCollapsed && (
-                  <div style={{ fontSize: '0.75rem', lineHeight: 1.2 }}>
-                    <div style={{ fontWeight: 700, color: 'var(--text-main)' }}>Stackly Pro</div>
-                    <div style={{ color: 'var(--text-muted)' }}>v2.4.0 Active</div>
-                  </div>
+                  <button
+                    type="button"
+                    onClick={handleLogout}
+                    title="Sign Out"
+                    style={{
+                      background: 'rgba(239, 68, 68, 0.08)',
+                      border: '1px solid rgba(239, 68, 68, 0.2)',
+                      color: '#EF4444',
+                      borderRadius: '6px',
+                      padding: '0.35rem 0.6rem',
+                      fontSize: '0.72rem',
+                      fontWeight: 600,
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.3rem'
+                    }}
+                  >
+                    <AppIcon name="logout" size={13} color="#EF4444" />
+                    <span>Logout</span>
+                  </button>
                 )}
               </div>
             </div>

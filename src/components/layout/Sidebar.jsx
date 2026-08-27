@@ -2,7 +2,7 @@ import React from 'react';
 import { useInventory } from '../../context/InventoryContext';
 import { Icon } from '../common/Icons';
 
-export const Sidebar = ({ isOpen, onClose }) => {
+export const Sidebar = ({ isOpen, onClose, onLogout }) => {
   const { currentView, setCurrentView, metrics, resetToFactoryData } = useInventory();
 
   const navItems = [
@@ -74,15 +74,28 @@ export const Sidebar = ({ isOpen, onClose }) => {
           </div>
         </div>
 
-        <button
-          className="control-btn"
-          style={{ width: '100%', fontSize: '0.78rem', justifyContent: 'center', color: 'var(--text-muted)' }}
-          onClick={resetToFactoryData}
-          title="Reset to factory realistic data"
-        >
-          <Icon name="refreshCw" size={13} />
-          <span>Reset Demo Dataset</span>
-        </button>
+        <div style={{ display: 'flex', gap: '0.5rem' }}>
+          <button
+            className="control-btn"
+            style={{ flex: 1, fontSize: '0.75rem', justifyContent: 'center', color: 'var(--text-muted)' }}
+            onClick={resetToFactoryData}
+            title="Reset to factory realistic data"
+          >
+            <Icon name="refreshCw" size={13} />
+            <span>Reset Demo</span>
+          </button>
+          {onLogout && (
+            <button
+              className="control-btn"
+              style={{ fontSize: '0.75rem', justifyContent: 'center', color: '#EF4444', borderColor: '#FEE2E2' }}
+              onClick={onLogout}
+              title="Sign Out"
+            >
+              <Icon name="logout" size={13} color="#EF4444" />
+              <span>Logout</span>
+            </button>
+          )}
+        </div>
       </div>
     </aside>
   );

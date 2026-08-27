@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useInventory } from '../../context/InventoryContext';
 import { Icon } from '../common/Icons';
 
-export const Navbar = ({ onToggleSidebar, onOpenAddModal }) => {
+export const Navbar = ({ onToggleSidebar, onOpenAddModal, onLogout }) => {
   const {
     theme,
     setTheme,
@@ -129,6 +129,18 @@ export const Navbar = ({ onToggleSidebar, onOpenAddModal }) => {
           <Icon name="plus" size={16} />
           <span className="btn-text-hide-mobile">New Product</span>
         </button>
+
+        {/* User Profile / Logout */}
+        {onLogout && (
+          <button
+            className="control-btn btn-icon-round"
+            onClick={onLogout}
+            title="Sign Out"
+            style={{ color: '#EF4444' }}
+          >
+            <Icon name="logout" size={18} color="#EF4444" />
+          </button>
+        )}
       </div>
     </header>
   );
